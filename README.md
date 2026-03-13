@@ -1,45 +1,275 @@
-# AI-Red Teamer: Local AI-Powered Security Scanner
+# 🔴 AI-Red Teamer
 
-A smart security system using **Local LLM (Ollama)** to analyze code and simulate automated attacks (Automated Red Teaming) to detect OWASP Top 10 vulnerabilities before deployment.
+> Local AI-powered security scanner that thinks like an attacker — detecting OWASP Top 10 vulnerabilities before they reach production.
 
-## 🚀 Features
-- **AI-Driven Analysis**: Uses Ollama (llama3.2) for privacy-first code analysis (no code sent to the cloud).
-- **Automated Verification**: Confirms vulnerabilities by simulating real attacks (exploit simulation) via Pytest.
-- **CI/CD Integration**: Supports GitHub Actions to immediately stop the pipeline upon detecting High-risk vulnerabilities.
-- **Vulnerability Reporting**: Generates a `security_report.md` summary with remediation guidance.
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![Ollama](https://img.shields.io/badge/Ollama-llama3.2-black?logo=ollama&logoColor=white)](https://ollama.com/)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)](https://github.com/features/actions)
+[![OWASP](https://img.shields.io/badge/Coverage-OWASP%20Top%2010-red)](https://owasp.org/www-project-top-ten/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## 🛠 System Architecture
-The system consists of 4 main components:
-1. **Scanner Engine**: Scans for modified files and sends them to the Local AI.
-2. **Attack Verifier**: Takes payloads from the AI and attempts to exploit them against a Mock Server.
-3. **Mock Engine**: A sandboxed server with intentional vulnerabilities for testing.
-4. **Orchestrator**: Controls the entire flow and returns exit codes for CI/CD.
+---
 
-## 📦 Quick Start
+## Table of Contents
 
-1. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [System Architecture](#system-architecture)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Run a Local Scan](#run-a-local-scan)
+- [CI/CD Integration](#cicd-integration)
+  - [GitHub Actions Setup](#github-actions-setup)
+  - [Required Secrets](#required-secrets)
+- [Output](#output)
+- [Project Structure](#project-structure)
+- [References / Useful Resources](#references--useful-resources)
+- [My Notes](#my-notes)
 
-2. **Setup Ollama**:
-   - Install [Ollama](https://ollama.com/)
-   - Run the model: `ollama run llama3.2`
+---
 
-3. **Run Local Scan**:
-   ```bash
-   python main_redteam.py
-   ```
+## Overview
 
-4. **Run Full Test Suite**:
-   ```bash
-   python -m pytest tests/test_redteam_logic.py
-   ```
+**AI-Red Teamer** is a local-first automated security scanner that combines **Static Code Analysis** with **Exploit Simulation** — powered entirely by a locally-hosted LLM (Llama 3.2 via Ollama).
 
-## 🛡 GitHub Configuration
-To use this in GitHub Actions, add the following Secrets:
-- `GITHUB_TOKEN`: For integration authentication.
-- `OPENAI_API_KEY`: (Optional) If you want to switch to GPT-4o instead of Ollama (adjustable in `scanner_engine.py`).
+Unlike traditional SAST tools, AI-Red Teamer doesn't just flag suspicious patterns. It goes further by generating real attack payloads and verifying them against a sandboxed Mock Server — confirming whether a vulnerability is actually exploitable before reporting it.
 
-## 📄 License
-MIT License
+All analysis stays on your machine. **No code is ever sent to the cloud.**
+
+> 📦 Open-source | `ai-red-teamer`
+> 🎯 Covers OWASP Top 10 vulnerability categories
+
+---
+
+## Key Features
+
+| Feature | Description |
+|---|---|
+| 🤖 AI-Driven Analysis | Uses Ollama (llama3.2) locally — fully private, no cloud dependency |
+| 💥 Exploit Simulation | Generates real payloads and verifies them via Pytest against a Mock Server |
+| 🚦 CI/CD Integration | GitHub Actions integration with automatic pipeline halt on High-risk findings |
+| 📋 Security Report | Auto-generates `security_report.md` with findings and remediation guidance |
+| 🔒 Privacy-First | Zero code exfiltration — all LLM inference runs on local hardware |
+| 🔄 Incremental Scanning | Scanner engine detects and targets only modified files for efficiency |
+
+---
+
+## System Architecture
+
+The system is composed of 4 coordinated components:
+
+```
+  Source Code (Modified Files)
+          │
+          ▼
+┌─────────────────────────┐
+│   1. Scanner Engine     │  Detects changed files → sends to Local AI (Ollama)
+│      scanner_engine.py  │  Identifies potential OWASP Top 10 vulnerabilities
+└────────────┬────────────┘
+             │ Vulnerability + Payload
+             ▼
+┌─────────────────────────┐     ┌──────────────────────────┐
+│   2. Attack Verifier    │────▶│   3. Mock Engine          │
+│      attack_verifier.py │     │      mock_server.py       │
+│   Executes payloads via │     │   Sandboxed server with   │
+│   Pytest exploit tests  │◀────│   intentional vuln targets│
+└────────────┬────────────┘     └──────────────────────────┘
+             │ Verified Results
+             ▼
+┌─────────────────────────┐
+│   4. Orchestrator       │  Controls full flow + returns exit codes
+│      main_redteam.py    │  Generates security_report.md
+└────────────┬────────────┘
+             │
+        Pass │ Fail
+        ┌────┴────┐
+        ▼         ▼
+    ✅ exit 0  ❌ exit 1
+    Pipeline   Pipeline
+    continues  blocked
+```
+
+### Component Responsibilities
+
+- **`scanner_engine.py`** — Scans modified files and queries Ollama for vulnerability analysis and payload generation.
+- **`attack_verifier.py`** — Takes AI-generated payloads and executes real exploit attempts against the Mock Engine using Pytest.
+- **`mock_server.py`** — A sandboxed server with intentional vulnerabilities, serving as a safe exploit target.
+- **`main_redteam.py`** — Orchestrator that controls the full scan-verify-report flow and returns CI/CD-compatible exit codes.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Local LLM | [Ollama](https://ollama.com/) + `llama3.2` |
+| Exploit Testing | [Pytest](https://pytest.org/) |
+| CI/CD | [GitHub Actions](https://github.com/features/actions) |
+| Mock Server | Python (sandboxed vulnerable server) |
+| Runtime | Python 3.10+ |
+| Alternative LLM | OpenAI GPT-4o (optional, configurable) |
+
+---
+
+## Quick Start
+
+### Prerequisites
+
+- ✅ **Python 3.10+** installed
+- ✅ **Ollama** installed and running locally
+- ✅ `llama3.2` model pulled into Ollama
+
+### Installation
+
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd ai-red-teamer
+
+# 2. Install Python dependencies
+pip install -r requirements.txt
+```
+
+### Setup Ollama
+
+```bash
+# Install Ollama (if not already installed)
+# https://ollama.com/download
+
+# Pull and run the required model
+ollama run llama3.2
+```
+
+> ⚠️ **Note:** Keep `ollama run llama3.2` running in a separate terminal before starting the scanner.
+
+---
+
+### Run a Local Scan
+
+```bash
+# Run the full Red Team scan against your codebase
+python main_redteam.py
+```
+
+```bash
+# Run the exploit verification test suite independently
+python -m pytest tests/test_redteam_logic.py
+```
+
+Results will be written to `security_report.md` in the project root.
+
+---
+
+## CI/CD Integration
+
+### GitHub Actions Setup
+
+AI-Red Teamer integrates natively with GitHub Actions. The orchestrator returns standard exit codes:
+
+| Exit Code | Meaning | Pipeline Effect |
+|---|---|---|
+| `0` | No High/Critical findings | ✅ Pipeline continues |
+| `1` | High or Critical vulnerability confirmed | ❌ Pipeline blocked |
+
+Add the scanner as a step in your workflow:
+
+```yaml
+# .github/workflows/redteam.yml
+name: AI Red Team Scan
+
+on: [push, pull_request]
+
+jobs:
+  redteam:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run AI Red Team Scanner
+        run: python main_redteam.py
+
+      - name: Upload Security Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: security_report.md
+```
+
+---
+
+### Required Secrets
+
+Configure the following secrets in your GitHub repository settings:
+
+| Secret | Required | Description |
+|---|---|---|
+| `GITHUB_TOKEN` | ✅ Yes | Auto-provided by GitHub Actions for pipeline integration |
+| `OPENAI_API_KEY` | ⬜ Optional | Only needed if switching from Ollama to GPT-4o in `scanner_engine.py` |
+
+---
+
+## Output
+
+After each scan, AI-Red Teamer generates a `security_report.md` containing:
+
+- **Vulnerability summary** — list of confirmed findings with OWASP category
+- **Severity rating** — Critical / High / Medium / Low per finding
+- **Exploit evidence** — payload used and server response confirming exploitability
+- **Remediation guidance** — actionable fix recommendations per vulnerability
+
+---
+
+## Project Structure
+
+```
+ai-red-teamer/
+│
+├── main_redteam.py           # Orchestrator — entry point
+├── scanner_engine.py         # File scanner + Ollama AI analysis
+├── attack_verifier.py        # Payload executor + exploit verifier
+├── mock_server.py            # Sandboxed vulnerable server (test target)
+├── requirements.txt
+│
+├── tests/
+│   └── test_redteam_logic.py # Pytest exploit verification suite
+│
+└── security_report.md        # Auto-generated scan output (git-ignored)
+```
+
+---
+
+## References / Useful Resources
+
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [Ollama Documentation](https://github.com/ollama/ollama/blob/main/docs/api.md)
+- [Pytest Documentation](https://docs.pytest.org/)
+- [MITRE ATT&CK Framework](https://attack.mitre.org/)
+- [NIST Application Security Guidelines](https://csrc.nist.gov/)
+- [GitHub Actions: Security Hardening](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions)
+
+---
+
+## My Notes
+
+> 📝 This project was built to explore the intersection of LLM-assisted reasoning and practical offensive security — specifically, whether a local model can reason about code vulnerabilities well enough to generate valid exploit payloads. The Mock Engine approach allows safe verification without touching production systems. Contributions welcome.
+
+---
+
+## License
+
+MIT License. Created as part of the **AI-Red Teamer** security research portfolio.
+
+---
+
+*Think like an attacker. Defend like an engineer.*

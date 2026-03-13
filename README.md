@@ -40,6 +40,7 @@ All analysis stays on your machine. **No code is ever sent to the cloud.**
 
 > 📦 Open-source | `ai-red-teamer`
 > 🎯 Covers OWASP Top 10 vulnerability categories
+![screenshot](assets/images/screenshot.png)
 
 ---
 

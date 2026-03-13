@@ -10,9 +10,7 @@ def main():
     github_token = os.getenv("GITHUB_TOKEN")
     
     if not github_token:
-        print("Error: GITHUB_TOKEN is not set (Required for GitHub interactions).")
-        # Proceed anyway if running locally without GitHub integration
-        # sys.exit(1) 
+        print("Warning: GITHUB_TOKEN is not set (Optional for local but required for GitHub Actions).")
 
     print("Configured for Local LLM (Ollama). Starting security scan...")
 

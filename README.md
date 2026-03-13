@@ -1,45 +1,45 @@
 # AI-Red Teamer: Local AI-Powered Security Scanner
 
-ระบบความมั่นคงปลอดภัยอัจฉริยะที่ใช้ **Local LLM (Ollama)** ในการวิเคราะห์โค้ดและจำลองการโจมตีอัตโนมัติ (Automated Red Teaming) เพื่อตรวจหาช่องโหว่ OWASP Top 10 ก่อนการ Deploy
+A smart security system using **Local LLM (Ollama)** to analyze code and simulate automated attacks (Automated Red Teaming) to detect OWASP Top 10 vulnerabilities before deployment.
 
-## 🚀 คุณสมบัติเด่น (Features)
-- **AI-Driven Analysis**: ใช้ Ollama (llama3.2) วิเคราะห์โค้ดแบบ Privacy-First (ไม่ต้องส่งคัดไป Cloud)
-- **Automated Verification**: ยืนยันช่องโหว่ด้วยการลองโจมตีจริง (Exploit Simulation) ผ่าน Pytest
-- **CI/CD Integration**: รองรับ GitHub Actions เพื่อหยุด Pipeline ทันทีที่พบช่องโหว่ระดับ High
-- **Vulnerability Reporting**: สร้างรายงาน `security_report.md` สรุปผลและแนวทางการแก้ไข
+## 🚀 Features
+- **AI-Driven Analysis**: Uses Ollama (llama3.2) for privacy-first code analysis (no code sent to the cloud).
+- **Automated Verification**: Confirms vulnerabilities by simulating real attacks (exploit simulation) via Pytest.
+- **CI/CD Integration**: Supports GitHub Actions to immediately stop the pipeline upon detecting High-risk vulnerabilities.
+- **Vulnerability Reporting**: Generates a `security_report.md` summary with remediation guidance.
 
-## 🛠 โครงสร้างระบบ (Architecture)
-ระบบประกอบด้วย 4 ส่วนหลัก:
-1. **Scanner Engine**: สแกนหาไฟล์ที่แก้ไขและส่งไปที่ Local AI
-2. **Attack Verifier**: นำ Payload จาก AI ไปลองยิงใส่ Mock Server
-3. **Mock Engine**: เซิร์ฟเวอร์จำลองที่มีช่องโหว่เพื่อใช้ทดสอบ
-4. **Orchestrator**: ตัวควบคุมการทำงานทั้งหมดและส่งค่า Exit Code ให้ CI/CD
+## 🛠 System Architecture
+The system consists of 4 main components:
+1. **Scanner Engine**: Scans for modified files and sends them to the Local AI.
+2. **Attack Verifier**: Takes payloads from the AI and attempts to exploit them against a Mock Server.
+3. **Mock Engine**: A sandboxed server with intentional vulnerabilities for testing.
+4. **Orchestrator**: Controls the entire flow and returns exit codes for CI/CD.
 
-## 📦 วิธีการติดตั้ง (Quick Start)
+## 📦 Quick Start
 
-1. **ติดตั้ง Dependencies**:
+1. **Install Dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-2. **เปิดระบบ Ollama**:
-   - ติดตั้ง [Ollama](https://ollama.com/)
-   - รันโมเดล: `ollama run llama3.2`
+2. **Setup Ollama**:
+   - Install [Ollama](https://ollama.com/)
+   - Run the model: `ollama run llama3.2`
 
-3. **รันการสแกนแบบ Local**:
+3. **Run Local Scan**:
    ```bash
    python main_redteam.py
    ```
 
-4. **รันการทดสอบระบบ (Full Test Suite)**:
+4. **Run Full Test Suite**:
    ```bash
    python -m pytest tests/test_redteam_logic.py
    ```
 
-## 🛡 การตั้งค่าใน GitHub
-หากต้องการนำไปใช้ใน GitHub Actions ให้เพิ่ม Secrets ดังนี้:
-- `GITHUB_TOKEN`: สำหรับการตรวจสอบสิทธิ์
-- `OPENAI_API_KEY`: (ตัวเลือก) หากต้องการเปลี่ยนไปใช้ GPT-4o แทน Ollama (ปรับใน `scanner_engine.py`)
+## 🛡 GitHub Configuration
+To use this in GitHub Actions, add the following Secrets:
+- `GITHUB_TOKEN`: For integration authentication.
+- `OPENAI_API_KEY`: (Optional) If you want to switch to GPT-4o instead of Ollama (adjustable in `scanner_engine.py`).
 
-## 📄 ใบอนุญาต (License)
+## 📄 License
 MIT License

@@ -40,10 +40,10 @@ def analyze_with_ai(code_snippet):
     )
     
     system_prompt = (
-        "คุณคือหัวหน้าทีม Red Team หน้าที่ของคุณคือหาช่องโหว่ OWASP Top 10 ในโค้ดนี้ "
-        "และสร้าง Payload ตัวอย่างเพื่อพิสูจน์ (PoC). "
-        "ให้ตอบกลับเป็นรูปแบบ JSON เท่านั้นที่มี field: vulnerability_type, risk_level (Low/Med/High), "
-        "payload_suggestion, และ remediation_guidance"
+        "You are a Red Team Lead. Your task is to identify OWASP Top 10 vulnerabilities in this code "
+        "and create a sample Proof of Concept (PoC) payload. "
+        "Respond ONLY in JSON format with fields: vulnerability_type, risk_level (Low/Med/High), "
+        "payload_suggestion, and remediation_guidance"
     )
     
     try:

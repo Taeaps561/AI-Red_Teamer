@@ -8,16 +8,13 @@ def main():
     
     # Retrieve tokens from environment variables
     github_token = os.getenv("GITHUB_TOKEN")
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-
+    
     if not github_token:
-        print("Error: GITHUB_TOKEN is not set.")
-        sys.exit(1)
-    if not openai_api_key:
-        print("Error: OPENAI_API_KEY is not set.")
-        sys.exit(1)
+        print("Error: GITHUB_TOKEN is not set (Required for GitHub interactions).")
+        # Proceed anyway if running locally without GitHub integration
+        # sys.exit(1) 
 
-    print("Tokens found. Starting security scan...")
+    print("Configured for Local LLM (Ollama). Starting security scan...")
 
     # 1. Read source code from latest commit
     code_snippets = scanner_engine.read_source_code()

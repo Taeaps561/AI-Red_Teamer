@@ -127,7 +127,7 @@ The system is composed of 4 coordinated components:
 
 ```bash
 # 1. Clone the repository
-git clone <repository-url>
+git clone https://github.com/Taeaps561/AI-Red_Teamer.git
 cd ai-red-teamer
 
 # 2. Install Python dependencies
